@@ -11,4 +11,4 @@ A web app for conducting SSLG elections at San Miguel National High School.
 2. Select a candidate and submit your vote.  
 
 ## Deployment  
-Hosted on Vercel: [https://smnhs-sslgvote.vercel.app](https://smnhs-sslgvote.vercel.app)
+Hosted on Vercel: [https://smnhs-sslgvote.vercel.app](https://sslg-vote.vercel.app/)
