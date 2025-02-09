@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMNHS SSLG Voting</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
@@ -22,8 +24,9 @@
         <option value="11">Grade 11</option>
         <option value="12">Grade 12</option>
       </select>
-      <button onclick="login()">Login</button>
+      <button id="loginBtn">Login</button>
     </div>
+    
     <div id="voteSection" style="display:none;">
       <h2>Candidates for Grade <span id="gradeDisplay"></span></h2>
       <select id="candidates">
@@ -32,13 +35,17 @@
         <option value="Pedro Reyes">Pedro Reyes</option>
         <option value="Ana Lopez">Ana Lopez</option>
       </select>
-      <button onclick="submitVote()">Submit Vote</button>
+      <button id="voteBtn">Submit Vote</button>
     </div>
     <p id="message"></p>
   </div>
-  <!-- Add Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="app.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+  <!-- Load App Script -->
+  <script type="module" src="app.js"></script>
+
 </body>
 </html>
