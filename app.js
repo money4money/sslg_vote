@@ -1,54 +1,66 @@
-// Firebase configuration (replace with your own)
+// Import Firebase SDKs
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc } from "firebase/firestore";
+
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
+  authDomain: "smnhs-g-vote.firebaseapp.com",
+  projectId: "smnhs-g-vote",
+  storageBucket: "smnhs-g-vote.appspot.com",
+  messagingSenderId: "416427442626",
+  appId: "1:416427442626:web:4249dfb15d5892b144965b",
+  measurementId: "G-RJHT21GX7Q"
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
-let currentLRN = "";
-
-function login() {
+// Function to log in a student using LRN
+async function login() {
   const lrn = document.getElementById('lrn').value.trim();
   const grade = document.getElementById('grade').value;
-  currentLRN = lrn;
 
-  // Check if LRN exists and hasn't voted
-  db.collection('students').doc(lrn).get().then((doc) => {
-    if (doc.exists && !doc.data().hasVoted && doc.data().grade == grade) {
+  try {
+    const docRef = doc(db, "students", lrn);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && !docSnap.data().hasVoted && docSnap.data().grade == grade) {
       document.getElementById('loginSection').style.display = 'none';
       document.getElementById('voteSection').style.display = 'block';
       document.getElementById('gradeDisplay').textContent = grade;
     } else {
       alert("Invalid LRN, grade mismatch, or already voted!");
     }
-  }).catch((error) => {
+  } catch (error) {
     alert("Error: " + error.message);
-  });
+  }
 }
 
-function submitVote() {
+// Function to submit a vote
+async function submitVote() {
   const candidate = document.getElementById('candidates').value;
   const grade = document.getElementById('grade').value;
+  const lrn = document.getElementById('lrn').value.trim();
 
-  // Add vote to Firestore
-  db.collection('votes').add({
-    candidate: candidate,
-    grade: parseInt(grade),
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
+  try {
+    // Add vote to Firestore
+    await addDoc(collection(db, "votes"), {
+      candidate: candidate,
+      grade: parseInt(grade),
+      timestamp: new Date()
+    });
+
     // Mark student as "hasVoted"
-    db.collection('students').doc(currentLRN).update({
+    await updateDoc(doc(db, "students", lrn), {
       hasVoted: true
     });
+
     alert("Vote submitted!");
-  }).catch((error) => {
+  } catch (error) {
     alert("Error: " + error.message);
-  });
+  }
 }
