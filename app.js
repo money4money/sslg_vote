@@ -1,9 +1,4 @@
-// Import Firebase SDKs
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc } from "firebase/firestore";
-
-// Firebase configuration
+// Firebase configuration (replace with your own)
 const firebaseConfig = {
   apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
   authDomain: "smnhs-g-vote.firebaseapp.com",
@@ -15,9 +10,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 // Function to log in a student using LRN
 async function login() {
@@ -65,6 +59,6 @@ async function submitVote() {
   }
 }
 
-// Attach functions to the global window object
-window.login = login;
-window.submitVote = submitVote;
+// Attach event listeners
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('voteBtn').addEventListener('click', submitVote);
