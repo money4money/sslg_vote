@@ -64,3 +64,7 @@ async function submitVote() {
     alert("Error: " + error.message);
   }
 }
+
+// Attach functions to the global window object
+window.login = login;
+window.submitVote = submitVote;
