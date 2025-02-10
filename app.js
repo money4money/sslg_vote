@@ -72,6 +72,16 @@ async function submitVote() {
 // Attach event listeners
 document.getElementById('loginBtn').addEventListener('click', login);
 document.getElementById('voteBtn').addEventListener('click', submitVote);
+document.getElementById("grade").addEventListener("change", function () { 
+    let selectedGrade = parseInt(this.value); // Convert selected grade to a number
+    let nextGrade = selectedGrade + 1; // Determine the next grade
+
+    if (selectedGrade) {
+        document.getElementById("gradeRepSection").style.display = "block";  
+        document.getElementById("gradeRepTitle").textContent = "Candidates for Grade " + nextGrade;  
+    }
+});
+
 function showGradeRepSection() {
     document.getElementById("gradeRepSection").style.display = "block";
 }
