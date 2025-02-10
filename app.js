@@ -13,6 +13,15 @@ const firebaseConfig = {
   measurementId: "G-RJHT21GX7Q"
 };
 
+// Dummy candidates for grade-level representatives
+const gradeRepCandidates = {
+  8: ["Arvin Cruz", "Bella Santos", "Carlos Reyes"],
+  9: ["Diana Lopez", "Eduardo Garcia", "Fiona Martinez"],
+  10: ["Gabriel Torres", "Hazel Ramirez", "Ivan Lim"],
+  11: ["Jasmine Tan", "Kevin Sy", "Lara Gomez"],
+  12: ["Miguel Rivera", "Nina Dizon", "Oscar Lim"]
+};
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -29,11 +38,25 @@ async function login() {
     if (docSnap.exists() && !docSnap.data().hasVoted && docSnap.data().grade == grade) {
       document.getElementById('loginSection').style.display = 'none';
       document.getElementById('voteSection').style.display = 'block';
-      document.getElementById('gradeDisplay').textContent = `Grade ${grade}`; // Set gradeDisplay text
+      document.getElementById('gradeDisplay').textContent = grade;
 
       // Show grade-level representative section
       if (grade >= 7 && grade <= 11) {
         const nextGrade = parseInt(grade) + 1;
+        const candidates = gradeRepCandidates[nextGrade] || [];
+        const select = document.getElementById('gradeRepCandidate');
+
+        // Clear existing options
+        select.innerHTML = '';
+        
+        // Add new candidates
+        candidates.forEach(candidate => {
+          const option = document.createElement('option');
+          option.value = candidate;
+          option.textContent = candidate;
+          select.appendChild(option);
+        });
+
         document.getElementById('gradeRepTitle').textContent = `Grade ${nextGrade} Representative`;
         document.getElementById('gradeRepSection').style.display = 'block';
       }
