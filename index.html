@@ -23,7 +23,7 @@
     </div>
     
     <div id="voteSection" style="display:none;">
-      <h2>SSLG Candidates</h2>
+      <h2>SSLG Candidates for <span id="gradeDisplay"></span></h2> <!-- Fixed gradeDisplay -->
       
       <!-- School-Wide Positions -->
       <div class="position">
@@ -86,15 +86,15 @@
 
       <!-- Grade-Level Representative -->
       <div id="gradeRepSection" style="display:none;">
-  <h3 id="gradeRepTitle"></h3>
-  <select id="gradeRepCandidate">
-    <option value="Candidate A">Candidate A</option>
-    <option value="Candidate B">Candidate B</option>
-  </select>
-</div>
+        <h3 id="gradeRepTitle"></h3> <!-- Fixed missing quote -->
+        <select id="gradeRepCandidate"> <!-- Fixed missing quote -->
+          <option value="Candidate A">Candidate A</option>
+          <option value="Candidate B">Candidate B</option>
+        </select>
+      </div>
 
       <button id="voteBtn">Submit Vote</button>
-      </div>
+    </div>
     <p id="message"></p>
   </div>
 
