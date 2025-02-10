@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, doc, getDoc, collection, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Firebase configuration (replace with your own)
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
   authDomain: "smnhs-g-vote.firebaseapp.com",
@@ -29,7 +29,7 @@ async function login() {
     if (docSnap.exists() && !docSnap.data().hasVoted && docSnap.data().grade == grade) {
       document.getElementById('loginSection').style.display = 'none';
       document.getElementById('voteSection').style.display = 'block';
-      document.getElementById('gradeDisplay').textContent = grade;
+      document.getElementById('gradeDisplay').textContent = `Grade ${grade}`; // Set gradeDisplay text
 
       // Show grade-level representative section
       if (grade >= 7 && grade <= 11) {
