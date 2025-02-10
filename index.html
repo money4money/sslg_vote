@@ -3,12 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SMNHS SSLG Voting</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; }
-    input, button { margin: 10px 0; padding: 8px; }
-  </style>
+  <title>SMNHS SSLG Election</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
@@ -22,94 +18,87 @@
         <option value="9">Grade 9</option>
         <option value="10">Grade 10</option>
         <option value="11">Grade 11</option>
-        <option value="12">Grade 12</option>
       </select>
       <button id="loginBtn">Login</button>
     </div>
     
     <div id="voteSection" style="display:none;">
       <h2>Candidates for Grade <span id="gradeDisplay"></span></h2>
-      <select id="candidates">
-        <option value="John Dela Cruz">John Dela Cruz</option>
-        <option value="Maria Santos">Maria Santos</option>
-        <option value="Pedro Reyes">Pedro Reyes</option>
-        <option value="Ana Lopez">Ana Lopez</option>
-      </select>
+      
+      <!-- School-Wide Positions -->
+      <div class="position">
+        <h3>President</h3>
+        <select class="candidate">
+          <option value="John Dela Cruz">John Dela Cruz</option>
+          <option value="Maria Santos">Maria Santos</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Vice President</h3>
+        <select class="candidate">
+          <option value="Pedro Reyes">Pedro Reyes</option>
+          <option value="Ana Lopez">Ana Lopez</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Secretary</h3>
+        <select class="candidate">
+          <option value="Ana Calamaya">Ana Calamaya</option>
+          <option value="Rose Labarro">Rose Labarro</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Treasurer</h3>
+        <select class="candidate">
+          <option value="Razel Carcillar">Razel Carcillar</option>
+          <option value="Hannah Zuckerberg">Hannah Zuckerberg</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Auditors</h3>
+        <select class="candidate">
+          <option value="Venus Valencia">Venus Valencia</option>
+          <option value="Yassi Pressman">Yassi Pressman</option>
+          <option value="Rona Arcales">Rona Arcales</option>
+          <option value="Shyrelle Mandaguio">Shyrelle Mandaguio</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Public Information Officer</h3>
+        <select class="candidate">
+          <option value="Klay Zanderford">Klay Zanderford</option>
+          <option value="Jerome Moore">Jerome Moore</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Protocol Officer</h3>
+        <select class="candidate">
+          <option value="Daniel Palfrey">Daniel Palfrey</option>
+          <option value="Dianne Curtis">Dianne Curtis</option>
+        </select>
+      </div>
+
+      <!-- Grade-Level Representative -->
+      <div id="gradeRepsection" style="display:none;">
+	<h3 id=gradeRepTitle"></h3>
+	<select id=gradeRepCandidate">
+          <option value="Candidate A">Candidate A</option>
+	  <option value="Candidate B">Candidate B</option>
+	</select>
+      </div>
+
       <button id="voteBtn">Submit Vote</button>
-    </div>
+      </div>
     <p id="message"></p>
   </div>
 
   <!-- Firebase SDK -->
-  <script type="module">
-    // Import Firebase SDKs
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
-    // Firebase configuration (replace with your own)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
-      authDomain: "smnhs-g-vote.firebaseapp.com",
-      projectId: "smnhs-g-vote",
-      storageBucket: "smnhs-g-vote.appspot.com",
-      messagingSenderId: "416427442626",
-      appId: "1:416427442626:web:4249dfb15d5892b144965b",
-      measurementId: "G-RJHT21GX7Q"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Function to log in a student using LRN
-    async function login() {
-      const lrn = document.getElementById('lrn').value.trim();
-      const grade = document.getElementById('grade').value;
-
-      try {
-        const docRef = doc(db, "students", lrn);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists() && !docSnap.data().hasVoted && docSnap.data().grade == grade) {
-          document.getElementById('loginSection').style.display = 'none';
-          document.getElementById('voteSection').style.display = 'block';
-          document.getElementById('gradeDisplay').textContent = grade;
-        } else {
-          alert("Invalid LRN, grade mismatch, or already voted!");
-        }
-      } catch (error) {
-        alert("Error: " + error.message);
-      }
-    }
-
-    // Function to submit a vote
-    async function submitVote() {
-      const candidate = document.getElementById('candidates').value;
-      const grade = document.getElementById('grade').value;
-      const lrn = document.getElementById('lrn').value.trim();
-
-      try {
-        // Add vote to Firestore
-        await addDoc(collection(db, "votes"), {
-          candidate: candidate,
-          grade: parseInt(grade),
-          timestamp: new Date()
-        });
-
-        // Mark student as "hasVoted"
-        await updateDoc(doc(db, "students", lrn), {
-          hasVoted: true
-        });
-
-        alert("Vote submitted!");
-      } catch (error) {
-        alert("Error: " + error.message);
-      }
-    }
-
-    // Attach event listeners
-    document.getElementById('loginBtn').addEventListener('click', login);
-    document.getElementById('voteBtn').addEventListener('click', submitVote);
-  </script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
