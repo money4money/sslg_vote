@@ -72,3 +72,6 @@ async function submitVote() {
 // Attach event listeners
 document.getElementById('loginBtn').addEventListener('click', login);
 document.getElementById('voteBtn').addEventListener('click', submitVote);
+function showGradeRepSection() {
+    document.getElementById("gradeRepSection").style.display = "block";
+}
