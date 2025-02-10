@@ -30,6 +30,13 @@ async function login() {
       document.getElementById('loginSection').style.display = 'none';
       document.getElementById('voteSection').style.display = 'block';
       document.getElementById('gradeDisplay').textContent = grade;
+
+      // Show grade-level representative section
+      if (grade >= 7 && grade <= 11) {
+        const nextGrade = parseInt(grade) + 1;
+        document.getElementById('gradeRepTitle').textContent = `Grade ${nextGrade} Representative`;
+        document.getElementById('gradeRepSection').style.display = 'block';
+      }
     } else {
       alert("Invalid LRN, grade mismatch, or already voted!");
     }
@@ -43,12 +50,22 @@ async function submitVote() {
   const lrn = document.getElementById('lrn').value.trim();
   const grade = document.getElementById('grade').value;
 
-  // Collect votes for each position
+  // Collect votes for school-wide positions
   const votes = {
     president: document.querySelector('.position:nth-child(1) .candidate').value,
     vicePresident: document.querySelector('.position:nth-child(2) .candidate').value,
-    // Add more positions here
+    secretary: document.querySelector('.position:nth-child(3) .candidate').value,
+    treasurer: document.querySelector('.position:nth-child(4) .candidate').value,
+    auditors: document.querySelector('.position:nth-child(5) .candidate').value,
+    pio: document.querySelector('.position:nth-child(6) .candidate').value,
+    protocolOfficer: document.querySelector('.position:nth-child(7) .candidate').value,
   };
+
+  // Add grade-level representative vote if applicable
+  if (grade >= 7 && grade <= 11) {
+    const nextGrade = parseInt(grade) + 1;
+    votes[`grade${nextGrade}Rep`] = document.getElementById('gradeRepCandidate').value;
+  }
 
   try {
     // Add vote to Firestore
@@ -72,16 +89,3 @@ async function submitVote() {
 // Attach event listeners
 document.getElementById('loginBtn').addEventListener('click', login);
 document.getElementById('voteBtn').addEventListener('click', submitVote);
-document.getElementById("grade").addEventListener("change", function () { 
-    let selectedGrade = parseInt(this.value); // Convert selected grade to a number
-    let nextGrade = selectedGrade + 1; // Determine the next grade
-
-    if (selectedGrade) {
-        document.getElementById("gradeRepSection").style.display = "block";  
-        document.getElementById("gradeRepTitle").textContent = "Candidates for Grade " + nextGrade;  
-    }
-});
-
-function showGradeRepSection() {
-    document.getElementById("gradeRepSection").style.display = "block";
-}
