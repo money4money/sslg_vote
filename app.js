@@ -1,3 +1,7 @@
+// Import Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
 // Firebase configuration (replace with your own)
 const firebaseConfig = {
   apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
@@ -10,8 +14,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // Function to log in a student using LRN
 async function login() {
@@ -36,16 +40,22 @@ async function login() {
 
 // Function to submit a vote
 async function submitVote() {
-  const candidate = document.getElementById('candidates').value;
-  const grade = document.getElementById('grade').value;
   const lrn = document.getElementById('lrn').value.trim();
+  const grade = document.getElementById('grade').value;
+
+  // Collect votes for each position
+  const votes = {
+    president: document.querySelector('.position:nth-child(1) .candidate').value,
+    vicePresident: document.querySelector('.position:nth-child(2) .candidate').value,
+    // Add more positions here
+  };
 
   try {
     // Add vote to Firestore
     await addDoc(collection(db, "votes"), {
-      candidate: candidate,
+      lrn: lrn,
       grade: parseInt(grade),
-      timestamp: new Date()
+      votes: votes
     });
 
     // Mark student as "hasVoted"
