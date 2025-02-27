@@ -15,11 +15,11 @@ const firebaseConfig = {
 
 // Dummy candidates for grade-level representatives
 const gradeRepCandidates = {
-  8: ["Arvin Cruz", "Bella Santos", "Carlos Reyes"],
-  9: ["Diana Lopez", "Eduardo Garcia", "Fiona Martinez"],
-  10: ["Gabriel Torres", "Hazel Ramirez", "Ivan Lim"],
-  11: ["Jasmine Tan", "Kevin Sy", "Lara Gomez"],
-  12: ["Miguel Rivera", "Nina Dizon", "Oscar Lim"]
+  8: ["Jonas Laude", "Kisha Pearl Landrito"],
+  9: ["Tobey Marty Calamaya", "Dennise Agatha Herrero"],
+  10: ["Angel Pelio", "Eunice Imee Lagarde"],
+  11: ["Pia Mae Martija", "Loujane Bragas"],
+  12: ["Angel Lloyd Bolante", "Bea Cleir Sister"]
 };
 
 // Initialize Firebase
