@@ -25,7 +25,17 @@ const gradeRepCandidates = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Login Function
+// Fixed Selector References
+const positionSelectors = {
+  president: '#presidentSelect',
+  vicePresident: '#vicePresidentSelect',
+  secretary: '#secretarySelect',
+  treasurer: '#treasurerSelect',
+  auditors: '#auditorsSelect',
+  pio: '#pioSelect',
+  protocolOfficer: '#protocolOfficerSelect'
+};
+
 async function login() {
   const lrn = document.getElementById('lrn').value.trim();
   const grade = document.getElementById('grade').value;
@@ -62,24 +72,25 @@ async function login() {
   }
 }
 
-// Vote Submission
 async function submitVote() {
   const lrn = document.getElementById('lrn').value.trim();
   const grade = document.getElementById('grade').value;
 
+  // Fixed: Use explicit IDs instead of nth-child
   const votes = {
-    president: document.querySelector('.position:nth-child(1) .candidate').value,
-    vicePresident: document.querySelector('.position:nth-child(2) .candidate').value,
-    secretary: document.querySelector('.position:nth-child(3) .candidate').value,
-    treasurer: document.querySelector('.position:nth-child(4) .candidate').value,
-    auditors: document.querySelector('.position:nth-child(5) .candidate').value,
-    pio: document.querySelector('.position:nth-child(6) .candidate').value,
-    protocolOfficer: document.querySelector('.position:nth-child(7) .candidate').value,
+    president: document.querySelector(positionSelectors.president).value,
+    vicePresident: document.querySelector(positionSelectors.vicePresident).value,
+    secretary: document.querySelector(positionSelectors.secretary).value,
+    treasurer: document.querySelector(positionSelectors.treasurer).value,
+    auditors: document.querySelector(positionSelectors.auditors).value,
+    pio: document.querySelector(positionSelectors.pio).value,
+    protocolOfficer: document.querySelector(positionSelectors.protocolOfficer).value,
   };
 
   if (grade >= 7 && grade <= 11) {
     const nextGrade = parseInt(grade) + 1;
-    votes[`grade${nextGrade}Rep`] = document.getElementById('gradeRepCandidate').value;
+    const gradeRepValue = document.getElementById('gradeRepCandidate').value;
+    if (gradeRepValue) votes[`grade${nextGrade}Rep`] = gradeRepValue;
   }
 
   try {
@@ -92,13 +103,12 @@ async function submitVote() {
     await updateDoc(doc(db, "students", lrn), {
       hasVoted: true
     });
-    alert("Vote submitted!");
+    alert("Vote submitted successfully!");
   } catch (error) {
-    alert("Error: " + error.message);
+    alert("Error submitting vote: " + error.message);
   }
 }
 
-// Real-Time Results
 function displayResults(voteData) {
   const resultsDiv = document.getElementById('results');
   resultsDiv.innerHTML = '';
@@ -112,7 +122,7 @@ function displayResults(voteData) {
   positions.forEach(position => {
     if (!voteData[position]) return;
 
-    const candidates = Object.entries(voteData[position])
+    const candidates = Object.entries(voteData[position] || {})
       .sort((a, b) => b[1] - a[1]);
 
     const html = `
@@ -121,7 +131,7 @@ function displayResults(voteData) {
         <ul>${candidates.map(([name, votes]) => `
           <li>${name}: ${votes} vote${votes !== 1 ? 's' : ''}</li>
         `).join('')}</ul>
-        <h4>Leader: ${candidates[0][0]}</h4>
+        ${candidates.length > 0 ? `<h4>Leader: ${candidates[0][0]}</h4>` : ''}
       </div>
     `;
     resultsDiv.innerHTML += html;
@@ -133,20 +143,17 @@ function displayResults(voteData) {
 function setupRealTimeResults() {
   onSnapshot(collection(db, 'votes'), (snapshot) => {
     const voteData = {};
-    
     snapshot.forEach(doc => {
       const positions = doc.data().votes;
       Object.entries(positions).forEach(([position, candidate]) => {
-        if (!voteData[position]) voteData[position] = {};
+        voteData[position] = voteData[position] || {};
         voteData[position][candidate] = (voteData[position][candidate] || 0) + 1;
       });
     });
-    
     displayResults(voteData);
   });
 }
 
-// Initialize
 document.getElementById('loginBtn').addEventListener('click', login);
 document.getElementById('voteBtn').addEventListener('click', submitVote);
 setupRealTimeResults();
