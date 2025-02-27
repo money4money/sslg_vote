@@ -1,8 +1,9 @@
-// Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, doc, getDoc, collection, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { 
+  getFirestore, doc, getDoc, collection, 
+  addDoc, updateDoc, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
   authDomain: "smnhs-g-vote.firebaseapp.com",
@@ -13,7 +14,6 @@ const firebaseConfig = {
   measurementId: "G-RJHT21GX7Q"
 };
 
-// Dummy candidates for grade-level representatives
 const gradeRepCandidates = {
   8: ["Jonas Laude", "Kisha Pearl Landrito"],
   9: ["Tobey Marty Calamaya", "Dennise Agatha Herrero"],
@@ -22,11 +22,10 @@ const gradeRepCandidates = {
   12: ["Angel Lloyd Bolante", "Bea Cleir Sister"]
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Function to log in a student using LRN
+// Login Function
 async function login() {
   const lrn = document.getElementById('lrn').value.trim();
   const grade = document.getElementById('grade').value;
@@ -40,17 +39,12 @@ async function login() {
       document.getElementById('voteSection').style.display = 'block';
       document.getElementById('gradeDisplay').textContent = grade;
 
-      // Show grade-level representative section
       if (grade >= 7 && grade <= 11) {
         const nextGrade = parseInt(grade) + 1;
-        const candidates = gradeRepCandidates[nextGrade] || [];
         const select = document.getElementById('gradeRepCandidate');
-
-        // Clear existing options
         select.innerHTML = '';
         
-        // Add new candidates
-        candidates.forEach(candidate => {
+        gradeRepCandidates[nextGrade].forEach(candidate => {
           const option = document.createElement('option');
           option.value = candidate;
           option.textContent = candidate;
@@ -68,12 +62,11 @@ async function login() {
   }
 }
 
-// Function to submit a vote
+// Vote Submission
 async function submitVote() {
   const lrn = document.getElementById('lrn').value.trim();
   const grade = document.getElementById('grade').value;
 
-  // Collect votes for school-wide positions
   const votes = {
     president: document.querySelector('.position:nth-child(1) .candidate').value,
     vicePresident: document.querySelector('.position:nth-child(2) .candidate').value,
@@ -84,31 +77,76 @@ async function submitVote() {
     protocolOfficer: document.querySelector('.position:nth-child(7) .candidate').value,
   };
 
-  // Add grade-level representative vote if applicable
   if (grade >= 7 && grade <= 11) {
     const nextGrade = parseInt(grade) + 1;
     votes[`grade${nextGrade}Rep`] = document.getElementById('gradeRepCandidate').value;
   }
 
   try {
-    // Add vote to Firestore
     await addDoc(collection(db, "votes"), {
       lrn: lrn,
       grade: parseInt(grade),
       votes: votes
     });
 
-    // Mark student as "hasVoted"
     await updateDoc(doc(db, "students", lrn), {
       hasVoted: true
     });
-
     alert("Vote submitted!");
   } catch (error) {
     alert("Error: " + error.message);
   }
 }
 
-// Attach event listeners
+// Real-Time Results
+function displayResults(voteData) {
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '';
+
+  const positions = [
+    'president', 'vicePresident', 'secretary', 'treasurer',
+    'auditors', 'pio', 'protocolOfficer',
+    'grade8Rep', 'grade9Rep', 'grade10Rep', 'grade11Rep', 'grade12Rep'
+  ];
+
+  positions.forEach(position => {
+    if (!voteData[position]) return;
+
+    const candidates = Object.entries(voteData[position])
+      .sort((a, b) => b[1] - a[1]);
+
+    const html = `
+      <div class="result-card">
+        <h3>${position.replace(/([A-Z])/g, ' $1').replace('Rep', ' Representative')}</h3>
+        <ul>${candidates.map(([name, votes]) => `
+          <li>${name}: ${votes} vote${votes !== 1 ? 's' : ''}</li>
+        `).join('')}</ul>
+        <h4>Leader: ${candidates[0][0]}</h4>
+      </div>
+    `;
+    resultsDiv.innerHTML += html;
+  });
+
+  document.getElementById('resultsSection').style.display = 'block';
+}
+
+function setupRealTimeResults() {
+  onSnapshot(collection(db, 'votes'), (snapshot) => {
+    const voteData = {};
+    
+    snapshot.forEach(doc => {
+      const positions = doc.data().votes;
+      Object.entries(positions).forEach(([position, candidate]) => {
+        if (!voteData[position]) voteData[position] = {};
+        voteData[position][candidate] = (voteData[position][candidate] || 0) + 1;
+      });
+    });
+    
+    displayResults(voteData);
+  });
+}
+
+// Initialize
 document.getElementById('loginBtn').addEventListener('click', login);
 document.getElementById('voteBtn').addEventListener('click', submitVote);
+setupRealTimeResults();
