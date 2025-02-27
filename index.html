@@ -10,14 +10,25 @@
   <div class="container">
     <h1>SMNHS SSLG Election</h1>
     
+    <!-- Login Section -->
     <div id="loginSection">
-      <!-- ... (unchanged login form) ... -->
+      <h2>Login with LRN</h2>
+      <input type="text" id="lrn" placeholder="Enter LRN" required>
+      <select id="grade">
+        <option value="7">Grade 7</option>
+        <option value="8">Grade 8</option>
+        <option value="9">Grade 9</option>
+        <option value="10">Grade 10</option>
+        <option value="11">Grade 11</option>
+      </select>
+      <button id="loginBtn">Login</button>
     </div>
 
+    <!-- Voting Section -->
     <div id="voteSection" style="display:none;">
       <h2>SSLG Candidates SY 2025-2026 - Grade <span id="gradeDisplay"></span></h2>
       
-      <!-- School Positions with explicit IDs -->
+      <!-- School Positions -->
       <div class="position">
         <h3>President</h3>
         <select class="candidate" id="presidentSelect">
@@ -34,9 +45,47 @@
         </select>
       </div>
 
-      <!-- Add id attributes to all other selects following same pattern -->
-      
-      <!-- Grade Rep Section -->
+      <div class="position">
+        <h3>Secretary</h3>
+        <select class="candidate" id="secretarySelect">
+          <option value="Kirsten Ingrid Obzunar">Kirsten Ingrid Obzunar</option>
+          <option value="Arwin Ala">Arwin Ala</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Treasurer</h3>
+        <select class="candidate" id="treasurerSelect">
+          <option value="Rica Mae Leuterio">Rica Mae Leuterio</option>
+          <option value="Izzy Faith Sister">Izzy Faith Sister</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Auditor</h3>
+        <select class="candidate" id="auditorsSelect">
+          <option value="Jhelyn Mae Villamor">Jhelyn Mae Villamor</option>
+          <option value="Micaella Fariscal">Micaella Fariscal</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Public Information Officer</h3>
+        <select class="candidate" id="pioSelect">
+          <option value="Quyhn Xnijlov Rillera">Quyhn Xnijlov Rillera</option>
+          <option value="Charieta Landrito">Charieta Landrito</option>
+        </select>
+      </div>
+
+      <div class="position">
+        <h3>Protocol Officer</h3>
+        <select class="candidate" id="protocolOfficerSelect">
+          <option value="Gian Gallano">Gian Gallano</option>
+          <option value="Frenses Ann Lagarde">Frenses Ann Lagarde</option>
+        </select>
+      </div>
+
+      <!-- Grade Representative Section -->
       <div id="gradeRepSection" style="display:none;">
         <h3 id="gradeRepTitle"></h3>
         <select id="gradeRepCandidate"></select>
@@ -45,8 +94,9 @@
       <button id="voteBtn">Submit Vote</button>
     </div>
 
+    <!-- Results Section -->
     <div class="container" id="resultsSection" style="display:none;">
-      <h1>Live Results</h1>
+      <h1>Live Election Results</h1>
       <div id="results"></div>
     </div>
   </div>
