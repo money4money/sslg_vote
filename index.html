@@ -9,6 +9,8 @@
 <body>
   <div class="container">
     <h1>SMNHS SSLG Election</h1>
+    
+    <!-- Login Section -->
     <div id="loginSection">
       <h2>Login with LRN</h2>
       <input type="text" id="lrn" placeholder="Enter LRN" required>
@@ -21,11 +23,12 @@
       </select>
       <button id="loginBtn">Login</button>
     </div>
-    
+
+    <!-- Voting Section -->
     <div id="voteSection" style="display:none;">
       <h2>SSLG Candidates SY 2025-2026 - Grade <span id="gradeDisplay"></span></h2>
       
-      <!-- School-Wide Positions -->
+      <!-- School Positions -->
       <div class="position">
         <h3>President</h3>
         <select class="candidate">
@@ -81,21 +84,25 @@
           <option value="Frenses Ann Lagarde">Frenses Ann Lagarde</option>
         </select>
       </div>
-      
-      <!-- Grade-Level Representative Section -->
-<div id="gradeRepSection" style="display:none;">
-  <h3 id="gradeRepTitle"></h3>
-  <select id="gradeRepCandidate">
-    <!-- Options will be added dynamically via JavaScript -->
-  </select>
-</div>
+
+      <!-- Grade Rep Section -->
+      <div id="gradeRepSection" style="display:none;">
+        <h3 id="gradeRepTitle"></h3>
+        <select id="gradeRepCandidate"></select>
+      </div>
 
       <button id="voteBtn">Submit Vote</button>
     </div>
+
+    <!-- Results Section -->
+    <div class="container" id="resultsSection" style="display:none;">
+      <h1>Live Results</h1>
+      <div id="results"></div>
+    </div>
+
     <p id="message"></p>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
