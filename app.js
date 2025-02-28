@@ -1,3 +1,97 @@
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+const auth = getAuth(app);
+
+const adminEmails = ["razelann.anover@deped.gov.ph"]; 
+
+function showAdminLogin() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('adminLogin').style.display = 'block';
+}
+
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const adminDoc = await getDoc(doc(db, "admins", userCredential.user.uid));
+    
+    if (adminDoc.exists()) {
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'block';
+      loadResults();
+    } else {
+      alert("Not authorized as admin!");
+      auth.signOut();
+    }
+  } catch (error) {
+    alert("Admin login failed: " + error.message);
+  }
+}
+
+async function loadResults() {
+  try {
+    const votesSnapshot = await getDocs(collection(db, "votes"));
+    const results = {};
+
+    votesSnapshot.forEach(doc => {
+      const voteData = doc.data();
+      Object.entries(voteData.votes).forEach(([position, candidate]) => {
+        if (!results[position]) results[position] = {};
+        results[position][candidate] = (results[position][candidate] || 0) + 1;
+      });
+    });
+
+    displayResults(results);
+    generateCharts(results);
+  } catch (error) {
+    alert("Error loading results: " + error.message);
+  }
+}
+
+function generateCharts(results) {
+  const positions = Object.keys(results);
+  
+  positions.forEach(position => {
+    const ctx = document.createElement('canvas');
+    ctx.id = `chart-${position}`;
+    document.getElementById('results').appendChild(ctx);
+    
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(results[position]),
+        datasets: [{
+          label: `Votes for ${position}`,
+          data: Object.values(results[position]),
+          backgroundColor: ['#3498db', '#2ecc71', '#e74c3c']
+        }]
+      }
+    });
+  });
+}
+
+document.getElementById('exportCSV').addEventListener('click', async () => {
+  const votesSnapshot = await getDocs(collection(db, "votes"));
+  let csvContent = "data:text/csv;charset=utf-8,";
+  
+  votesSnapshot.forEach(doc => {
+    csvContent += Object.values(doc.data()).join(",") + "\r\n";
+  });
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "election_results.csv");
+  document.body.appendChild(link);
+  link.click();
+});
+
+document.getElementById('showAdmin').addEventListener('click', showAdminLogin);
+document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+document.getElementById('refreshResults').addEventListener('click', loadResults);
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { 
   getFirestore, doc, getDoc, collection, 
