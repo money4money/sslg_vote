@@ -65,3 +65,47 @@ button:hover {
   color: #e74c3c;
   padding: 15px;
 }
+
+#resultsSection {
+  margin-top: 40px;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.result-card {
+  background: #f8f9fa;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.result-card h3 {
+  color: #2c3e50;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.result-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.result-card li {
+  padding: 8px;
+  margin: 5px 0;
+  background: white;
+  border-radius: 4px;
+}
+
+.leader {
+  color: #27ae60;
+  font-weight: bold;
+  margin-top: 15px;
+  padding: 10px;
+  background: #e8f5e9;
+  border-radius: 4px;
+}
