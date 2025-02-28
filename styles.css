@@ -109,3 +109,31 @@ button:hover {
   background: #e8f5e9;
   border-radius: 4px;
 }
+
+.results-page .container {
+  max-width: 1200px;
+}
+
+.candidate-row {
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.vote-progress {
+  flex-grow: 1;
+  height: 25px;
+  background: #eee;
+  border-radius: 12px;
+  margin: 0 20px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #3498db;
+  transition: width 0.5s ease;
+}
