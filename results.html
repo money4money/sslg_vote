@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMNHS SSLG Live Results</title>
+    <title>Live Election Results - SMNHS SSLG</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>SMNHS SSLG ELECTION 2024 LIVE RESULTS</h1>
-        <div class="last-updated" id="lastUpdated">Loading results...</div>
-        
-        <!-- Results Container -->
-        <div id="resultsContainer"></div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            Results update automatically every 10 seconds • Powered by Firebase
-        </div>
+    <div class="results-container">
+        <header>
+            <h1>SSLG ELECTION LIVE RESULTS</h1>
+            <div class="last-updated" id="lastUpdated">
+                ⏳ Loading latest votes...
+            </div>
+        </header>
+
+        <main id="resultsContainer"></main>
+
+        <footer>
+            <p>Results update in real-time • San Miguel National High School</p>
+            <p>Powered by Firebase • Updated: <span id="updateTime"></span></p>
+        </footer>
     </div>
 
 <script>
@@ -39,86 +42,91 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Real-time Results
+// Real-time Results Listener
 db.collection("votes").onSnapshot((snapshot) => {
     const results = {};
+    const now = new Date();
     
-    // Clear loading message
-    document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-    
-    // Process votes
+    // Update timestamps
+    document.getElementById('lastUpdated').textContent = `Last update: ${now.toLocaleTimeString()}`;
+    document.getElementById('updateTime').textContent = now.toLocaleDateString();
+
+    // Process all votes
     snapshot.forEach(doc => {
-        const positionVotes = doc.data().votes;
-        for(const [position, candidate] of Object.entries(positionVotes)) {
+        const voteData = doc.data().votes;
+        Object.entries(voteData).forEach(([position, candidate]) => {
             if(!results[position]) results[position] = {};
             results[position][candidate] = (results[position][candidate] || 0) + 1;
-        }
+        });
     });
 
-    // Display results
     displayResults(results);
+}, (error) => {
+    document.getElementById('lastUpdated').textContent = "⚠️ Error loading results!";
+    console.error("Firestore error:", error);
 });
 
 function displayResults(results) {
     const container = document.getElementById('resultsContainer');
     container.innerHTML = '';
-    
+
     // Define positions in order
-    const positions = [
-        'president', 
-        'vicePresident', 
-        'secretary', 
-        'treasurer', 
-        'auditors', 
-        'pio', 
-        'protocolOfficer',
-        'grade8Rep',
-        'grade9Rep',
-        'grade10Rep',
-        'grade11Rep',
-        'grade12Rep'
+    const positionsOrder = [
+        'President', 
+        'VicePresident', 
+        'Secretary', 
+        'Treasurer', 
+        'Auditor', 
+        'PublicInformationOfficer', 
+        'ProtocolOfficer',
+        'Grade8Rep',
+        'Grade9Rep',
+        'Grade10Rep',
+        'Grade11Rep',
+        'Grade12Rep'
     ];
 
-    positions.forEach(position => {
+    positionsOrder.forEach(position => {
         if(!results[position]) return;
-        
-        const sortedCandidates = Object.entries(results[position])
+
+        const sorted = Object.entries(results[position])
             .sort((a, b) => b[1] - a[1]);
-        
-        const positionName = formatPositionName(position);
-        
+
         const positionHTML = `
-            <div class="position-card">
-                <h2>${positionName}</h2>
+            <section class="position-card">
+                <h2>${formatPositionName(position)}</h2>
                 <div class="candidates-list">
-                    ${sortedCandidates.map(([name, votes]) => `
+                    ${sorted.map(([name, votes]) => `
                         <div class="candidate-row">
-                            <div class="candidate-name">${name}</div>
+                            <div class="candidate-info">
+                                <span class="candidate-name">${name}</span>
+                                <span class="vote-percent">${calculatePercentage(votes, sorted)}%</span>
+                            </div>
+                            <div class="vote-progress">
+                                <div class="progress-bar" style="width: ${calculatePercentage(votes, sorted)}%"></div>
+                            </div>
                             <div class="vote-count">${votes}</div>
                         </div>
                     `).join('')}
                 </div>
-            </div>
+            </section>
         `;
         
         container.innerHTML += positionHTML;
     });
 }
 
-function formatPositionName(position) {
-    return position
+function formatPositionName(pos) {
+    return pos
         .replace(/([A-Z])/g, ' $1')
         .replace('Rep', ' Representative')
-        .toUpperCase()
-        .replace('GRADE', 'Grade');
+        .replace(/^\w/, c => c.toUpperCase());
 }
 
-// Error handling
-firebase.firestore().enablePersistence()
-    .catch((err) => {
-        console.error('Firebase persistence error:', err);
-    });
+function calculatePercentage(votes, allCandidates) {
+    const total = allCandidates.reduce((sum, [_, votes]) => sum + votes, 0);
+    return ((votes / total) * 100).toFixed(1);
+}
 </script>
-
 </body>
 </html>
