@@ -1,16 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMNHS SSLG Live Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="container">
- 
-    <div id="resultsSection">
-      <div id="results"></div>
+    <div class="container">
+        <h1>SMNHS SSLG ELECTION 2024 LIVE RESULTS</h1>
+        <div class="last-updated" id="lastUpdated">Loading results...</div>
+        
+        <!-- Results Container -->
+        <div id="resultsContainer"></div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            Results update automatically every 10 seconds • Powered by Firebase
+        </div>
     </div>
-  </div>
-  
-  <script type="module" src="app.js"></script>
+
+<script>
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDgxT2abVQ9IijpK7mPtSVR8MB9_avt5nY",
+    authDomain: "smnhs-g-vote.firebaseapp.com",
+    projectId: "smnhs-g-vote",
+    storageBucket: "smnhs-g-vote.appspot.com",
+    messagingSenderId: "416427442626",
+    appId: "1:416427442626:web:4249dfb15d5892b144965b",
+    measurementId: "G-RJHT21GX7Q"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Real-time Results
+db.collection("votes").onSnapshot((snapshot) => {
+    const results = {};
+    
+    // Clear loading message
+    document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+    
+    // Process votes
+    snapshot.forEach(doc => {
+        const positionVotes = doc.data().votes;
+        for(const [position, candidate] of Object.entries(positionVotes)) {
+            if(!results[position]) results[position] = {};
+            results[position][candidate] = (results[position][candidate] || 0) + 1;
+        }
+    });
+
+    // Display results
+    displayResults(results);
+});
+
+function displayResults(results) {
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = '';
+    
+    // Define positions in order
+    const positions = [
+        'president', 
+        'vicePresident', 
+        'secretary', 
+        'treasurer', 
+        'auditors', 
+        'pio', 
+        'protocolOfficer',
+        'grade8Rep',
+        'grade9Rep',
+        'grade10Rep',
+        'grade11Rep',
+        'grade12Rep'
+    ];
+
+    positions.forEach(position => {
+        if(!results[position]) return;
+        
+        const sortedCandidates = Object.entries(results[position])
+            .sort((a, b) => b[1] - a[1]);
+        
+        const positionName = formatPositionName(position);
+        
+        const positionHTML = `
+            <div class="position-card">
+                <h2>${positionName}</h2>
+                <div class="candidates-list">
+                    ${sortedCandidates.map(([name, votes]) => `
+                        <div class="candidate-row">
+                            <div class="candidate-name">${name}</div>
+                            <div class="vote-count">${votes}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML += positionHTML;
+    });
+}
+
+function formatPositionName(position) {
+    return position
+        .replace(/([A-Z])/g, ' $1')
+        .replace('Rep', ' Representative')
+        .toUpperCase()
+        .replace('GRADE', 'Grade');
+}
+
+// Error handling
+firebase.firestore().enablePersistence()
+    .catch((err) => {
+        console.error('Firebase persistence error:', err);
+    });
+</script>
+
 </body>
 </html>
