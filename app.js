@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { 
   getFirestore, doc, getDoc, collection, 
-  addDoc, updateDoc
+  addDoc, updateDoc, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lrn = lrnInput.value.trim();
     const grade = gradeSelect.value;
 
-    if (!lrn || !grade) {
-      alert("Please fill in all fields");
+    if (!/^\d{12}$/.test(lrn)) {
+      alert("Invalid LRN! Must be 12 digits");
       return;
     }
 
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("Invalid LRN, grade mismatch, or already voted!");
       }
     } catch (error) {
-      alert("Error: " + error.message);
+      alert("Login error: " + error.message);
     }
   }
 
@@ -79,39 +79,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const grade = gradeSelect.value;
 
     try {
-      const votes = {
+      const voteData = {
+        lrn: lrn,
+        grade: parseInt(grade),
+        timestamp: serverTimestamp(),
         president: document.getElementById('presidentSelect').value,
         vicePresident: document.getElementById('vicePresidentSelect').value,
         secretary: document.getElementById('secretarySelect').value,
         treasurer: document.getElementById('treasurerSelect').value,
         auditors: document.getElementById('auditorsSelect').value,
         pio: document.getElementById('pioSelect').value,
-        protocolOfficer: document.getElementById('protocolOfficerSelect').value,
+        protocolOfficer: document.getElementById('protocolOfficerSelect').value
       };
 
       if (grade >= 7 && grade <= 11) {
         const nextGrade = parseInt(grade) + 1;
-        votes[`grade${nextGrade}Rep`] = gradeRepCandidate.value;
+        voteData[`grade${nextGrade}Rep`] = gradeRepCandidate.value;
       }
 
-      // Add vote to votes collection
-      await addDoc(collection(db, "votes"), {
-        lrn: lrn,
-        grade: parseInt(grade),
-        votes: votes,
-        timestamp: new Date()
-      });
-
-      // Update student's voting status
-      await updateDoc(doc(db, "students", lrn), {
-        hasVoted: true
-      });
-
+      await addDoc(collection(db, "votes"), voteData);
+      await updateDoc(doc(db, "students", lrn), { hasVoted: true });
+      
       alert("Vote submitted successfully!");
-      window.location.reload(); // Reset the form
-
+      window.location.reload();
     } catch (error) {
       alert("Error submitting vote: " + error.message);
+      console.error("Submission error:", error);
     }
   }
 
