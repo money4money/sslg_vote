@@ -96,8 +96,21 @@
   </div>
 
   <script type="module" src="app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 </body>
+  <div id="adminLogin" style="display:none;">
+  <h2>Admin Login</h2>
+  <input type="email" id="adminEmail" placeholder="Admin Email">
+  <input type="password" id="adminPassword" placeholder="Password">
+  <button id="adminLoginBtn">Login</button>
+</div>
 
+<div id="adminDashboard" style="display:none;">
+  <h1>Election Results Dashboard</h1>
+  <div id="results"></div>
+  <button id="exportCSV">Export to CSV</button>
+  <button id="refreshResults">Refresh</button>
+</div>
      <!-- Results Section -->
      <div id="resultsSection" style="display:none;">
       <h1>Live Election Results</h1>
