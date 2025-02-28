@@ -55,7 +55,75 @@ document.addEventListener('DOMContentLoaded', () => {
         if (grade >= 7 && grade <= 11) {
           const nextGrade = parseInt(grade) + 1;
           gradeRepCandidate.innerHTML = '';
-          
+   
+    async function loadResults() {
+     try {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = "Loading results...";
+    
+       const votesSnapshot = await getDocs(collection(db, "votes"));
+       const results = {};
+
+    votesSnapshot.forEach(doc => {
+      const voteData = doc.data().votes;
+      Object.entries(voteData).forEach(([position, candidate]) => {
+        if (!results[position]) results[position] = {};
+        results[position][candidate] = (results[position][candidate] || 0) + 1;
+      });
+    });
+
+    displayResults(results);
+  } catch (error) {
+    alert("Error loading results: " + error.message);
+  }
+}
+
+function displayResults(results) {
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '';
+
+  const positions = [
+    'president', 'vicePresident', 'secretary', 'treasurer',
+    'auditors', 'pio', 'protocolOfficer',
+    'grade8Rep', 'grade9Rep', 'grade10Rep', 'grade11Rep', 'grade12Rep'
+  ];
+
+  positions.forEach(position => {
+    if (!results[position]) return;
+
+    const candidates = Object.entries(results[position])
+      .sort((a, b) => b[1] - a[1]);
+
+    const html = `
+      <div class="result-card">
+        <h3>${formatPositionName(position)}</h3>
+        <ul>
+          ${candidates.map(([name, votes]) => `
+            <li>${name}: ${votes} vote${votes !== 1 ? 's' : ''}</li>
+          `).join('')}
+        </ul>
+        ${candidates.length > 0 ? `
+          <div class="leader">
+            Current Leader: ${candidates[0][0]} (${candidates[0][1]} votes)
+          </div>
+        ` : ''}
+      </div>
+    `;
+    resultsDiv.innerHTML += html;
+  });
+}
+
+function formatPositionName(position) {
+  return position
+    .replace(/([A-Z])/g, ' $1')
+    .replace('Rep', ' Representative')
+    .replace(/^./, str => str.toUpperCase());
+}
+
+document.getElementById('showResults').addEventListener('click', () => {
+  document.getElementById('resultsSection').style.display = 'block';
+  loadResults();
+});  
           gradeRepCandidates[nextGrade].forEach(candidate => {
             const option = document.createElement('option');
             option.value = candidate;
