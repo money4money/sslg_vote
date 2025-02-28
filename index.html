@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' https://www.gstatic.com;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMNHS SSLG Election</title>
   <link rel="stylesheet" href="styles.css">
@@ -13,7 +14,7 @@
     <!-- Login Section -->
     <div id="loginSection">
       <h2>Login with LRN</h2>
-      <input type="text" id="lrn" placeholder="Enter LRN" required>
+      <input type="text" id="lrn" placeholder="Enter 12-digit LRN" required>
       <select id="grade">
         <option value="7">Grade 7</option>
         <option value="8">Grade 8</option>
@@ -28,7 +29,6 @@
     <div id="voteSection" style="display:none;">
       <h2>SSLG Candidates SY 2025-2026 - Grade <span id="gradeDisplay"></span></h2>
       
-      <!-- School Positions -->
       <div class="position">
         <h3>President</h3>
         <select class="candidate" id="presidentSelect">
