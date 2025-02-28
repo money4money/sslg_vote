@@ -12,7 +12,7 @@
 <body>
     <div class="results-container">
         <header>
-            <h1>SSLG ELECTION LIVE RESULTSfg</h1>
+            <h1>SSLG ELECTION LIVE RESULTS</h1>
             <div class="last-updated" id="lastUpdated">
                 ⏳ Loading latest votes...
             </div>
@@ -46,87 +46,172 @@ const db = firebase.firestore();
 db.collection("votes").onSnapshot((snapshot) => {
     const results = {};
     const now = new Date();
-    
+    let president_votes = [];
+    let vice_pres_votes = [];
+    let secretary_votes = [];
+    let treasurer_votes = [];
+    let auditors_votes = [];
+    let pio_votes = [];
+    let protocol_officer_votes = [];
+    let grade_12_rep = [];
+    let grade_11_rep = [];
+    let grade_10_rep = [];
+    let grade_9_rep = [];
+    let grade_8_rep = [];
+
     // Update timestamps
     document.getElementById('lastUpdated').textContent = `Last update: ${now.toLocaleTimeString()}`;
     document.getElementById('updateTime').textContent = now.toLocaleDateString();
-
     // Process all votes
     snapshot.forEach(doc => {
-        const voteData = doc.data().votes;
-        Object.entries(voteData).forEach(([position, candidate]) => {
-            if(!results[position]) results[position] = {};
-            results[position][candidate] = (results[position][candidate] || 0) + 1;
-        });
+      //  console.log(doc.data())
+        if(doc.data().president){
+            president_votes.push(doc.data().president);
+        }
+        if(doc.data().vicePresident){
+            vice_pres_votes.push(doc.data().vicePresident);
+        }
+        if(doc.data().secretary){
+            secretary_votes.push(doc.data().secretary);
+        }
+        if(doc.data().treasurer){
+            treasurer_votes.push(doc.data().treasurer);
+        }
+        if(doc.data().auditors){
+            auditors_votes.push(doc.data().auditors);
+        }
+        if(doc.data().pio){
+            pio_votes.push(doc.data().pio);
+        }
+        if(doc.data().protocolOfficer){
+            protocol_officer_votes.push(doc.data().protocolOfficer);
+        }
+        if(doc.data().hasOwnProperty('grade12Rep') && doc.data().grade12Rep){
+            grade_12_rep.push(doc.data().grade12Rep);
+        }
+        if(doc.data().hasOwnProperty('grade11Rep') && doc.data().grade11Rep){
+            grade_11_rep.push(doc.data().grade11Rep);
+        }
+        if(doc.data().hasOwnProperty('grade10Rep') && doc.data().grade10Rep){
+            grade_10_rep.push(doc.data().grade10Rep);
+        }
+        if(doc.data().hasOwnProperty('grade9Rep') && doc.data().grade9Rep){
+            grade_9_rep.push(doc.data().grade9Rep);
+        }
+        if(doc.data().hasOwnProperty('grade8Rep') && doc.data().grade8Rep){
+            grade_8_rep.push(doc.data().grade8Rep);
+        }
+        // Object.entries(voteData).forEach(([position, candidate]) => {
+        //     if(!results[position]) results[position] = {};
+        //     results[position][candidate] = (results[position][candidate] || 0) + 1;
+        // });
     });
-
-    displayResults(results);
+    displayVoteResults('President', [...new Set(president_votes)], president_votes)
+    displayVoteResults('Vice-President', [...new Set(vice_pres_votes)], vice_pres_votes)
+    displayVoteResults('Secretary', [...new Set(secretary_votes)], secretary_votes)
+    displayVoteResults('Treasurer', [...new Set(treasurer_votes)], treasurer_votes)
+    displayVoteResults('Auditors', [...new Set(auditors_votes)], auditors_votes)
+    displayVoteResults('Pio', [...new Set(pio_votes)], pio_votes)
+    displayVoteResults('Protocol Officers', [...new Set(protocol_officer_votes)], protocol_officer_votes)
+    displayVoteResults('Grade 12 Representatives', [...new Set(grade_12_rep)], grade_12_rep)
+    displayVoteResults('Grade 11 Representatives', [...new Set(grade_11_rep)], grade_11_rep)
+    displayVoteResults('Grade 10 Representatives', [...new Set(grade_10_rep)], grade_10_rep)
+    displayVoteResults('Grade 9 Representatives', [...new Set(grade_9_rep)], grade_9_rep)
+    displayVoteResults('Grade 8 Representatives', [...new Set(grade_8_rep)], grade_8_rep)
 }, (error) => {
     document.getElementById('lastUpdated').textContent = "⚠️ Error loading results!";
     console.error("Firestore error:", error);
 });
-
-function displayResults(results) {
+function displayVoteResults(position, candidates, voters){
     const container = document.getElementById('resultsContainer');
-    container.innerHTML = '';
-
-    // Define positions in order
-    const positionsOrder = [
-        'President', 
-        'VicePresident', 
-        'Secretary', 
-        'Treasurer', 
-        'Auditor', 
-        'PublicInformationOfficer', 
-        'ProtocolOfficer',
-        'Grade8Rep',
-        'Grade9Rep',
-        'Grade10Rep',
-        'Grade11Rep',
-        'Grade12Rep'
-    ];
-
-    positionsOrder.forEach(position => {
-        if(!results[position]) return;
-
-        const sorted = Object.entries(results[position])
-            .sort((a, b) => b[1] - a[1]);
-
-        const positionHTML = `
-            <section class="position-card">
-                <h2>${formatPositionName(position)}</h2>
-                <div class="candidates-list">
-                    ${sorted.map(([name, votes]) => `
+    const positionHTML = `
+        <section class="position-card">
+            <h2>${position}</h2>
+            <div class="candidates-list">
+                ${candidates.map(el => {
+                    if(el){
+                        return `
                         <div class="candidate-row">
                             <div class="candidate-info">
-                                <span class="candidate-name">${name}</span>
-                                <span class="vote-percent">${calculatePercentage(votes, sorted)}%</span>
+                                <span class="candidate-name">${el}</span>
+                                <span class="vote-percent">${countVote(el, voters)}/${voters.length}</span>
                             </div>
                             <div class="vote-progress">
-                                <div class="progress-bar" style="width: ${calculatePercentage(votes, sorted)}%"></div>
+                                <div class="progress-bar" style="width: ${parseFloat(((countVote(el, voters) / voters.length) * 100)) }%"></div>
                             </div>
-                            <div class="vote-count">${votes}</div>
+                            <div class="vote-count">${countVote(el, voters)}</div>
                         </div>
-                    `).join('')}
-                </div>
-            </section>
-        `;
+                    `;
+                    }
+                }).join('')}
+            </div>
+        </section>
+    `;
+    container.innerHTML += positionHTML;
+}
+function countVote(candidate, votes){
+    return votes.filter(el => candidate == el).length
+}
+// function displayResults(results) {
+//     const container = document.getElementById('resultsContainer');
+//     container.innerHTML = '';
+//     // Define positions in order
+//     const positionsOrder = [
+//         'President', 
+//         'VicePresident', 
+//         'Secretary', 
+//         'Treasurer', 
+//         'Auditor', 
+//         'PublicInformationOfficer', 
+//         'ProtocolOfficer',
+//         'Grade8Rep',
+//         'Grade9Rep',
+//         'Grade10Rep',
+//         'Grade11Rep',
+//         'Grade12Rep'
+//     ];
+
+//     positionsOrder.forEach(position => {
+//         if(!results[position]) return;
+
+//         const sorted = Object.entries(results[position])
+//             .sort((a, b) => b[1] - a[1]);
+
+//         const positionHTML = `
+//             <section class="position-card">
+//                 <h2>${formatPositionName(position)}</h2>
+//                 <div class="candidates-list">
+//                     ${sorted.map(([name, votes]) => `
+//                         <div class="candidate-row">
+//                             <div class="candidate-info">
+//                                 <span class="candidate-name">${name}</span>
+//                                 <span class="vote-percent">${calculatePercentage(votes, sorted)}%</span>
+//                             </div>
+//                             <div class="vote-progress">
+//                                 <div class="progress-bar" style="width: ${calculatePercentage(votes, sorted)}%"></div>
+//                             </div>
+//                             <div class="vote-count">${votes}</div>
+//                         </div>
+//                     `).join('')}
+//                 </div>
+//             </section>
+//         `;
         
-        container.innerHTML += positionHTML;
-    });
-}
+//         container.innerHTML += positionHTML;
+//     });
+// }
 
-function formatPositionName(pos) {
-    return pos
-        .replace(/([A-Z])/g, ' $1')
-        .replace('Rep', ' Representative')
-        .replace(/^\w/, c => c.toUpperCase());
-}
+// function formatPositionName(pos) {
+//     return pos
+//         .replace(/([A-Z])/g, ' $1')
+//         .replace('Rep', ' Representative')
+//         .replace(/^\w/, c => c.toUpperCase());
+// }
 
-function calculatePercentage(votes, allCandidates) {
-    const total = allCandidates.reduce((sum, [_, votes]) => sum + votes, 0);
-    return ((votes / total) * 100).toFixed(1);
-}
+// function calculatePercentage(votes, allCandidates) {
+//     const total = allCandidates.reduce((sum, [_, votes]) => sum + votes, 0);
+//     return ((votes / total) * 100).toFixed(1);
+// }
 </script>
 </body>
 </html>
